@@ -66,7 +66,7 @@ gait_synth::gait_synth(rclcpp::NodeOptions options) :
   n_points(5),
   contact_radius(0.055),
   contact_height(0.090),
-  contact_theta_offset(-1.7),
+  contact_theta_offset(-1.6),
   step_size(0.015),
   step_height(-0.020),
   step_phase_offsets({0.0, 0.2, 0.4, 0.6, 0.8}),
@@ -148,8 +148,6 @@ gait_synth::gait_synth(rclcpp::NodeOptions options) :
   twist_sub = this->create_subscription<geometry_msgs::msg::Twist>(
     "cmd_vel", 1, std::bind(&gait_synth::onCommand, this, std::placeholders::_1));
 
-
-
 }
 
 
@@ -181,7 +179,7 @@ void gait_synth::onCommand(const geometry_msgs::msg::Twist::SharedPtr msg)
 
   //advance the phase of the gait by some amount
   double phase_advance = (
-      msg_pos.norm() + (contact_radius * msg->angular.z)
+      msg_pos.norm() + std::abs(contact_radius * msg->angular.z)
     ) / step_size;
   phase = std::fmod(phase + phase_advance, 1.0);
   if(phase < 0) phase += 1;
