@@ -1,0 +1,163 @@
+<?xml version="1.0"?>
+<robot name="visual" xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+  <!-- dummy_joints: create additional zero-length links to allow KDL IK engine to satisfy tip orientation -->
+  <xacro:property name="dummy_joints" value="true" />
+
+  <xacro:property name="package_name" value="claw" />
+  <xacro:property name="file_prefix" value="$(find ${package_name})" />
+
+  
+  <xacro:property name="openscad_params_file" value="${file_prefix}/openscad/dragon_claw.json" />
+  <xacro:property name="openscad_params" value="${load_yaml(openscad_params_file)}"/>
+  <xacro:property name="openscad_parameterSet" value="default"/>
+  <xacro:property name="my_model_params" value="${openscad_params['parameterSets'][openscad_parameterSet]}"/>
+
+
+
+  <link name="palm">
+    <visual>
+      <geometry>
+        <mesh scale="0.001 0.001 0.001" filename="package://${package_name}/meshes/dragon_claw_palm.stl"/>
+      </geometry>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+    </visual>
+  </link>
+
+  <xacro:macro name="finger" params="digit model_params use_dummy_joints">
+    <xacro:property name="knuckle_motor_xyz" value="${model_params['knuckle_motor_pos'][digit][0]}"/>
+    <xacro:property name="finger_motor_xyz" value="${model_params['finger_motor_pos'][digit][0]}"/>
+    <xacro:property name="claw_motor_xyz" value="${model_params['claw_motor_pos'][digit][0]}"/>
+    <xacro:property name="claw_point_xyz" value="${model_params['claw_point_pos'][digit][0]}"/>
+
+    <xacro:property name="knuckle_motor_rpy" value="${model_params['knuckle_motor_pos'][digit][1]}"/>
+    <xacro:property name="finger_motor_rpy" value="${model_params['finger_motor_pos'][digit][1]}"/>
+    <xacro:property name="claw_motor_rpy" value="${model_params['claw_motor_pos'][digit][1]}"/>
+    <xacro:property name="claw_point_rpy" value="${model_params['claw_point_pos'][digit][1]}"/>
+
+    <link name="knuckle_${digit}">
+      <visual>
+        <geometry>
+          <mesh scale="0.001 0.001 0.001" filename="package://${package_name}/meshes/dragon_claw_knuckle_${digit}.stl"/>
+        </geometry>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+      </visual>
+    </link>
+
+    <joint name="knuckle_servo_${digit}" type="revolute">
+      <parent link="palm"/>
+      <child link="knuckle_${digit}"/>
+      <origin
+        xyz="${knuckle_motor_xyz[0]/1000.0} ${knuckle_motor_xyz[1]/1000.0} ${knuckle_motor_xyz[2]/1000.0}"
+        rpy="${radians(knuckle_motor_rpy[0])} ${radians(knuckle_motor_rpy[1])} ${radians(knuckle_motor_rpy[2])}"
+      />
+      <axis xyz="0 0 1"/>
+      <limit effort="0.2" velocity="1" lower="-1.57" upper="1.57"/>
+    </joint>
+
+
+    <link name="finger_${digit}">
+      <visual>
+        <geometry>
+          <mesh scale="0.001 0.001 0.001" filename="package://${package_name}/meshes/dragon_claw_finger_${digit}.stl"/>
+        </geometry>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+      </visual>
+    </link>
+
+    <joint name="finger_servo_${digit}" type="revolute">
+      <parent link="knuckle_${digit}"/>
+      <child link="finger_${digit}"/>
+      <origin
+        xyz="${finger_motor_xyz[0]/1000.0} ${finger_motor_xyz[1]/1000.0} ${finger_motor_xyz[2]/1000.0}"
+        rpy="${radians(finger_motor_rpy[0])} ${radians(finger_motor_rpy[1])} ${radians(finger_motor_rpy[2])}"
+      />
+      <axis xyz="0 0 -1"/>
+      <limit effort="0.2" velocity="1" lower="-1.57" upper="1.57"/>
+    </joint>
+
+
+    <link name="claw_${digit}">
+      <visual>
+        <geometry>
+          <mesh scale="0.001 0.001 0.001" filename="package://${package_name}/meshes/dragon_claw_claw_${digit}.stl"/>
+        </geometry>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+      </visual>
+    </link>
+
+    <joint name="claw_servo_${digit}" type="revolute">
+      <parent link="finger_${digit}"/>
+      <child link="claw_${digit}"/>
+      <origin
+        xyz="${claw_motor_xyz[0]/1000.0} ${claw_motor_xyz[1]/1000.0} ${claw_motor_xyz[2]/1000.0}"
+        rpy="${radians(claw_motor_rpy[0])} ${radians(claw_motor_rpy[1])} ${radians(claw_motor_rpy[2])}"
+      />
+      <axis xyz="0 0 -1"/>
+      <limit effort="0.2" velocity="1" lower="-1.57" upper="1.57"/>
+    </joint>
+
+    <link name="claw_point_${digit}">
+      <visual>
+        <geometry>
+          <sphere radius="0.001"/>
+        </geometry>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+      </visual>
+    </link>
+
+    <joint name="claw_point_${digit}" type="fixed">
+      <parent link="claw_${digit}"/>
+      <xacro:unless value="${use_dummy_joints}">
+        <child link="claw_point_${digit}"/>
+      </xacro:unless>
+      <xacro:if value="${use_dummy_joints}">
+        <child link="claw_dummy_lx_${digit}"/>
+      </xacro:if>      <origin
+        xyz="${claw_point_xyz[0]/1000.0} ${claw_point_xyz[1]/1000.0} ${claw_point_xyz[2]/1000.0}"
+        rpy="${radians(claw_point_rpy[0])} ${radians(claw_point_rpy[1])} ${radians(claw_point_rpy[2])}"
+      />
+    </joint>
+
+    <!-- KDL IK encounters gimbal-lock with only three dummy joints -->
+    <xacro:if value="${use_dummy_joints}">
+      <link name="claw_dummy_lx_${digit}"/>
+      <link name="claw_dummy_ly_${digit}"/>
+      <link name="claw_dummy_lz_${digit}"/>
+      <link name="claw_dummy_lr_${digit}"/>
+
+      <joint name="claw_dummy_jx_${digit}" type="continuous">
+        <parent link="claw_dummy_lx_${digit}"/>
+        <child link="claw_dummy_ly_${digit}"/>
+        <axis xyz="1 0 0"/>
+      </joint>
+
+      <joint name="claw_dummy_jy_${digit}" type="continuous">
+        <parent link="claw_dummy_ly_${digit}"/>
+        <child link="claw_dummy_lz_${digit}"/>
+        <axis xyz="0 1 0"/>
+      </joint>
+
+      <joint name="claw_dummy_jz_${digit}" type="continuous">
+        <parent link="claw_dummy_lz_${digit}"/>
+        <child link="claw_dummy_lr_${digit}"/>
+        <axis xyz="0 0 1"/>
+      </joint>
+
+      <joint name="claw_dummy_jr_${digit}" type="continuous">
+        <parent link="claw_dummy_lr_${digit}"/>
+        <child link="claw_point_${digit}"/>
+        <axis xyz="1 0 0"/>
+      </joint>
+    </xacro:if>
+
+  </xacro:macro>
+
+
+  <xacro:finger digit='0' model_params="${my_model_params}" use_dummy_joints="${dummy_joints}"/>
+  <xacro:finger digit='1' model_params="${my_model_params}" use_dummy_joints="${dummy_joints}"/>
+  <xacro:finger digit='2' model_params="${my_model_params}" use_dummy_joints="${dummy_joints}"/>
+  <xacro:finger digit='3' model_params="${my_model_params}" use_dummy_joints="${dummy_joints}"/>
+  <xacro:finger digit='4' model_params="${my_model_params}" use_dummy_joints="${dummy_joints}"/>
+
+  </robot>

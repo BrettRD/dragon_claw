@@ -1,0 +1,52 @@
+# config to drive servos from the claw messages
+# bias and gain 
+
+#ideal:
+# ros-controls actuator implementing 16 channels of duty and phase, comms over I2C
+# ros-controls, controller to accept messages from real world
+#   ForwardCommandController would be fine, takes std_msgs::msg::Float64MultiArray
+# cascaded controllers is via ros2_control hardware_interface system
+# 'sensors', 'systems', and 'actuators' can be defined in xacros.
+# IK can be defined in a 'system'
+
+# for now, consume a sensor_msgs::msg::JointState, produce a std_msgs::msg::Int32MultiArray
+
+
+
+/**:
+  ros__parameters:
+    # list of joints to listen to from a joint_state_message
+    # in order of how they appear in the output (duplicates permitted)
+
+    joints:
+      - 'knuckle_servo_0'
+      - 'finger_servo_0'
+      - 'claw_servo_0'
+      - 'knuckle_servo_1'
+      - 'finger_servo_1'
+      - 'claw_servo_1'
+      - 'knuckle_servo_2'
+      - 'finger_servo_2'
+      - 'claw_servo_2'
+      - 'knuckle_servo_3'
+      - 'finger_servo_3'
+      - 'claw_servo_3'
+      - 'knuckle_servo_4'
+      - 'finger_servo_4'
+      - 'claw_servo_4'
+
+    bias:     [307.0, 307.0, 307.0, 307.0, 307.0, 307.0, 307.0, 307.0, 307.0, 307.0, 307.0, 307.0, 307.0, 307.0, 307.0]
+    position: [128.0, 128.0, 128.0, 128.0, 128.0, 128.0, 128.0, 128.0, 128.0, 128.0, 128.0, 128.0, 128.0, 128.0, 128.0]
+    #velocity: []
+    #effort:   []
+
+# settings for a PCA9685 PWM controller
+/**:
+  ros__parameters:
+    device: "/dev/i2c-1"
+    frequency: 50
+    timeout:        [ 500, 500, 500, 500,  500, 500, 500, 500,  500, 500, 500, 500,  500, 500, 500,   0]
+    pwm_max:        [ 409, 409, 409, 409,  409, 409, 409, 409,  409, 409, 409, 409,  409, 409, 409,   0]
+    pwm_min:        [ 205, 205, 205, 205,  205, 205, 205, 205,  205, 205, 205, 205,  205, 205, 205,   0]
+    timeout_value:  [   0,   0,   0,   0,    0,   0,   0,   0,    0,   0,   0,   0,    0,   0,   0,   0]
+

@@ -1,0 +1,3 @@
+[submodule "openscad"]
+	path = openscad
+	url = git@github.com:BrettRD/kinematics_scad.git
