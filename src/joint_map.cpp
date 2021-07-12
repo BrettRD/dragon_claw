@@ -75,7 +75,13 @@ void joint_map::onCommand(const sensor_msgs::msg::JointState::SharedPtr msg)
 {
   auto output = std::make_unique<std_msgs::msg::Int32MultiArray>();
   output->data.clear();
-  output->data.resize(joint_list.size(), -1);
+  output->data.resize(n_channels, -1);
+
+  int n_filled_channels = joint_list.size();
+  if(n_channels < joint_list.size())
+  {
+    n_filled_channels = n_channels;
+  }
 
   for(unsigned int name_idx=0; name_idx < msg->name.size(); name_idx++)
   {
