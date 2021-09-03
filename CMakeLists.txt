@@ -112,7 +112,6 @@ install(TARGETS
 
 #install config files
 install(DIRECTORY
-  meshes
   urdf
   openscad
   config

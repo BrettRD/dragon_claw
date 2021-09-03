@@ -18,7 +18,7 @@
   <link name="palm">
     <visual>
       <geometry>
-        <mesh scale="0.001 0.001 0.001" filename="package://${package_name}/meshes/dragon_claw_palm.stl"/>
+        <mesh scale="0.001 0.001 0.001" filename="package://${package_name}/openscad/stl/dragon_claw_palm.stl"/>
       </geometry>
       <origin rpy="0 0 0" xyz="0 0 0"/>
     </visual>
@@ -38,7 +38,7 @@
     <link name="knuckle_${digit}">
       <visual>
         <geometry>
-          <mesh scale="0.001 0.001 0.001" filename="package://${package_name}/meshes/dragon_claw_knuckle_${digit}.stl"/>
+          <mesh scale="0.001 0.001 0.001" filename="package://${package_name}/openscad/stl/dragon_claw_knuckle_${digit}.stl"/>
         </geometry>
         <origin xyz="0 0 0" rpy="0 0 0"/>
       </visual>
@@ -59,7 +59,7 @@
     <link name="finger_${digit}">
       <visual>
         <geometry>
-          <mesh scale="0.001 0.001 0.001" filename="package://${package_name}/meshes/dragon_claw_finger_${digit}.stl"/>
+          <mesh scale="0.001 0.001 0.001" filename="package://${package_name}/openscad/stl/dragon_claw_finger_${digit}.stl"/>
         </geometry>
         <origin xyz="0 0 0" rpy="0 0 0"/>
       </visual>
@@ -80,7 +80,7 @@
     <link name="claw_${digit}">
       <visual>
         <geometry>
-          <mesh scale="0.001 0.001 0.001" filename="package://${package_name}/meshes/dragon_claw_claw_${digit}.stl"/>
+          <mesh scale="0.001 0.001 0.001" filename="package://${package_name}/openscad/stl/dragon_claw_claw_${digit}.stl"/>
         </geometry>
         <origin xyz="0 0 0" rpy="0 0 0"/>
       </visual>
